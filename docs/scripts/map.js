@@ -11,7 +11,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoicmFtb25hMjAyMCIsImEiOiI2ZjQzZTA4N2QxNjA5NzM2Y
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/ramona2020/ciuyeghu000ga2io4at9oelp0',
-center: [42.36, -71.06], // starting position
+center: [-71.06, 42.36], // starting position
     zoom: 12 // starting zoom	
 });
 
