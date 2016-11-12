@@ -1,65 +1,113 @@
 // code adapted from https://www.mapbox.com/mapbox.js/example/v1.0.0/markers-with-image-slideshow/
 
 // ACTION ITEM: replace mapbox access token below with your own mapbox access token. Refer to blank for information on accessing your token.
-L.mapbox.accessToken =
-	'pk.eyJ1IjoidnVsaWJyYXJ5Z2lzIiwiYSI6ImFaN2JkSlUifQ.Dl2sTO1mGKK7MCd1ViGPnQ';
+mapboxgl.accessToken = 'pk.eyJ1IjoibWlza290dGUiLCJhIjoiOGp0VEpwUSJ9.sDOYAReEdCQfxFZuGDXBaQ';
 
 // ACTION ITEM: Insert the Mapbox key for your landing page map, refer blank for information on locating the map key. Also change the set view for your region of the world
-var map = L.mapbox.map('map', "vulibrarygis.of23e6p0").setView([52.51, 13.38],
-	12);
-var layer = L.mapbox.featureLayer().addTo(map)
-
-// Add custom popup html to each marker
-layer.on('layeradd', function(e) {
-	var marker = e.layer;
-	var feature = marker.feature;
-	var images = feature.properties.images;
-	var slideshowContent = '';
-
-	if (typeof images !== "undefined") {
-		for (var i = 0; i < images.length; i++) {
-			var img = images[i];
-			slideshowContent += '<div class="image' + (i === 0 ? ' active' : '') +
-				'">' +
-				formatMedia(img) +
-				'<div class="caption">' + img.description + '</div>' +
-				'</div>';
-		}
-	}
-
-	// Adds corresponding HTML element to format the media formats appropriately.
-	// The list of acceptable formats may be expanded as necessary.
-	function formatMedia(img) {
-		if (img.format === "YouTube") {
-			return "<iframe width='175' src='" + img.url +
-				"' frameborder='0' allowfullscreen=''></iframe>";
-		}
-		if (img.format === "Image") {
-			return "<img src='" + img.url + "'/>";
-		}
-	}
-
-	// Create custom popup content
-	var popupContent = '<div id="' + feature.properties.id + '" class="popup">' +
-		'<h2>' + feature.properties.title + '</h2>' +
-		'<div class="slideshow">' +
-		slideshowContent +
-		'</div>' +
-		'<div class="cycle">' +
-		'<a href="#" class="prev">&laquo; Previous</a>' +
-		'<a href="#" class="next">Next &raquo;</a>' +
-		'</div>';
-	'</div>';
-
-	// http://leafletjs.com/reference.html#popup
-	marker.bindPopup(popupContent, {
-		closeButton: false,
-		maxWidth: 200,
-		autoPan: true,
-		keepInView: true
-	});
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/streets-v10',
+		center: [13.38,52.51],
+		zoom: 8
 });
 
+map.on('style.load', function () {
+	map.addSource("points", {
+			 "type": "geojson",
+			 "data": {
+					 "type": "FeatureCollection",
+					 "features": [{
+							 "type": "Feature",
+							 "geometry": {
+									 "type": "Point",
+									 "coordinates": [-77.03238901390978, 38.913188059745586]
+							 },
+							 "properties": {
+									 "title": "Mapbox DC",
+									 "icon": "monument"
+							 }
+					 }, {
+							 "type": "Feature",
+							 "geometry": {
+									 "type": "Point",
+									 "coordinates": [-122.414, 37.776]
+							 },
+							 "properties": {
+									 "title": "Mapbox SF",
+									 "icon": "harbor"
+							 }
+					 }]
+			 }
+	 });
+
+	 map.addLayer({
+         "id": "points",
+         "type": "symbol",
+         "source": "points",
+         "layout": {
+             "icon-image": "monument-15",
+             "text-field": "{title}",
+             "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+             "text-offset": [0, 0.6],
+             "text-anchor": "top"
+         }
+     });
+});
+
+
+// var layer = L.mapbox.featureLayer().addTo(map)
+//
+// // Add custom popup html to each marker
+// layer.on('layeradd', function(e) {
+// 	var marker = e.layer;
+// 	var feature = marker.feature;
+// 	var images = feature.properties.images;
+// 	var slideshowContent = '';
+//
+// 	if (typeof images !== "undefined") {
+// 		for (var i = 0; i < images.length; i++) {
+// 			var img = images[i];
+// 			slideshowContent += '<div class="image' + (i === 0 ? ' active' : '') +
+// 				'">' +
+// 				formatMedia(img) +
+// 				'<div class="caption">' + img.description + '</div>' +
+// 				'</div>';
+// 		}
+// 	}
+//
+// 	// Adds corresponding HTML element to format the media formats appropriately.
+// 	// The list of acceptable formats may be expanded as necessary.
+// 	function formatMedia(img) {
+// 		if (img.format === "YouTube") {
+// 			return "<iframe width='175' src='" + img.url +
+// 				"' frameborder='0' allowfullscreen=''></iframe>";
+// 		}
+// 		if (img.format === "Image") {
+// 			return "<img src='" + img.url + "'/>";
+// 		}
+// 	}
+//
+// 	// Create custom popup content
+// 	var popupContent = '<div id="' + feature.properties.id + '" class="popup">' +
+// 		'<h2>' + feature.properties.title + '</h2>' +
+// 		'<div class="slideshow">' +
+// 		slideshowContent +
+// 		'</div>' +
+// 		'<div class="cycle">' +
+// 		'<a href="#" class="prev">&laquo; Previous</a>' +
+// 		'<a href="#" class="next">Next &raquo;</a>' +
+// 		'</div>';
+// 	'</div>';
+//
+// 	// http://leafletjs.com/reference.html#popup
+// 	marker.bindPopup(popupContent, {
+// 		closeButton: false,
+// 		maxWidth: 200,
+// 		autoPan: true,
+// 		keepInView: true
+// 	});
+// });
+//
 // This example uses jQuery to make selecting items in the slideshow easier.
 // Download it from http://jquery.com
 $('#map').on('click', '.popup .cycle a', function() {
@@ -89,7 +137,7 @@ $(function() {
 
 	// list views from Cloudant that we want to offer as layers
 	var cloudantViews = [];
-// ACTION ITEM: Replace cloudant database URL with URL for your database 
+// ACTION ITEM: Replace cloudant database URL with URL for your database
 	$.getJSON('https://vulibrarygis.cloudant.com/map-berlin/_design/tour/',
 		function(result) {
 			var viewsList = result.views;
@@ -124,9 +172,9 @@ $("#search").submit(function(event) {
 });
 
 function getLayer(callback, cloudantView) {
-// ACTION ITEM: Replace cloudant database URL with URL for your database 	
+// ACTION ITEM: Replace cloudant database URL with URL for your database
 	var cloudantURLbase =
-		"https://vulibrarygis.cloudant.com/map-berlin/_design/tour/_view/";
+		"//vulibrarygis.cloudant.com/map-berlin/_design/tour/_view/";
 	var cloudantURLcallback = "?callback=?";
 	var thisCloudantURL = cloudantURLbase + cloudantView + cloudantURLcallback;
 	$.getJSON(thisCloudantURL, function(result) {
@@ -135,15 +183,20 @@ function getLayer(callback, cloudantView) {
 		for (var i in points) {
 			geoJSON["locations"] = geoJSON.push(points[i].value);
 		}
-		callback(geoJSON);
+		var featureCollection =
+			{
+				 "type": "FeatureCollection",
+				 "features": geoJSON
+			};
+		callback(featureCollection);
 	});
 }
 
 // See http://stackoverflow.com/questions/19916894/wait-for-multiple-getjson-calls-to-finish
 function searchPoints(callback, cloudantSearch) {
-// ACTION ITEM: Replace cloudant database URL with URL for your database 	
+// ACTION ITEM: Replace cloudant database URL with URL for your database
 	var cloudantURLbase =
-		"https://vulibrarygis.cloudant.com/map-berlin/_design/tour/_search/ids?q=";
+		"//vulibrarygis.cloudant.com/map-berlin/_design/tour/_search/ids?q=";
 	var cloudantURLcallback = "&callback=?";
 	var thisCloudantURL = cloudantURLbase + cloudantSearch + cloudantURLcallback;
 	$.getJSON(thisCloudantURL, function(result) {
@@ -166,7 +219,7 @@ function getPoints(cloudantIDs) {
 	}
 
 	function getPoint(id) {
-// ACTION ITEM: Replace cloudant database URL with URL for your database 		
+// ACTION ITEM: Replace cloudant database URL with URL for your database
 		var cloudantURLbase = "https://vulibrarygis.cloudant.com/map-berlin/";
 		var url = cloudantURLbase + id;
 		return $.getJSON(url); // this returns a "promise"
@@ -182,10 +235,20 @@ function getPoints(cloudantIDs) {
 			for (var i in arguments) {
 				geoJSON.push(arguments[i][0]);
 			}
-			processLayer(geoJSON);
+			var featureCollection =
+				{
+					 "type": "FeatureCollection",
+					 "features": geoJSON
+				};
+			processLayer(featureCollection);
 		} else if (typeof arguments[0] !== 'undefined') {
 			geoJSON.push(arguments[0]);
-			processLayer(geoJSON);
+			var featureCollection =
+				{
+					 "type": "FeatureCollection",
+					 "features": geoJSON
+				};
+			processLayer(featureCollection);
 		}
 	});
 }
@@ -193,33 +256,32 @@ function getPoints(cloudantIDs) {
 function processLayer(result) {
 	// Add features to the map
 	var selection_label = $('#layers-dropdown option:selected').text();
-// ACTION ITEM: The selection label must match your view in Cloudant	
+// ACTION ITEM: The selection label must match your view in Cloudant
 	if (selection_label == "1908") {
-// ACTION ITEM: Replace mapbox id below with the mapbox id that corresponds to your georeferenced map for the view above			
+// ACTION ITEM: Replace mapbox id below with the mapbox id that corresponds to your georeferenced map for the view above
 		new_id = 'vulibrarygis.l74iic1a'
-	} 
-// ACTION ITEM: If you would like to incorporate multiple views into your mapping application, remove the double slashes in front of each trio of lines beginning with else if and ending with the end curly brace.	
+	}
+// ACTION ITEM: If you would like to incorporate multiple views into your mapping application, remove the double slashes in front of each trio of lines beginning with else if and ending with the end curly brace.
 // ACTION ITEM: Each trio of lines from else if to the end curly brace is equivalent to one Cloudant view and map.
 // ACTION ITEM: Remember to replace your selection label with your view from Cloudant and the mapbox key with the corresponding map.
 	// else if (selection_label == "1920") {
 	//	new_id = 'vulibrarygis.l366jopj'
-	// } 
+	// }
 	// else if (selection_label == "1936") {
 	//	new_id = 'vulibrarygis.l369lc2l'
-	// } 
+	// }
 	//else if (selection_label == "1947") {
 	//	new_id = 'vulibrarygis.l36anlai'
-	// } 
+	// }
 	// else if (selection_label == "1970") {
 	//	new_id = 'vulibrarygis.l36db1a5'
-	// } 
-// ACTION ITEM: Replace this mapbox id with the mapbox id for your landing page map.	
+	// }
+// ACTION ITEM: Replace this mapbox id with the mapbox id for your landing page map.
 	else {
 		new_id = 'vulibrarygis.of23e6p0'
 	};
-	var new_layer = L.mapbox.tileLayer(new_id);
-	new_layer.addTo(map);
-	layer.setGeoJSON(result);
+
+	map.getSource('points').setData(result);
 }
 
 // Show and hide the alert box
