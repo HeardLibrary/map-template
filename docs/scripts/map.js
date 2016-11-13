@@ -1,10 +1,10 @@
 // code adapted from https://www.mapbox.com/mapbox.js/example/v1.0.0/markers-with-image-slideshow/
 
 // ACTION ITEM: replace mapbox access token below with your own mapbox access token. Refer to blank for information on accessing your token.
-mapboxgl.accessToken = 'pk.eyJ1IjoibWlza290dGUiLCJhIjoiOGp0VEpwUSJ9.sDOYAReEdCQfxFZuGDXBaQ';
+mapboxgl.accessToken     = 'pk.eyJ1IjoibWlza290dGUiLCJhIjoiOGp0VEpwUSJ9.sDOYAReEdCQfxFZuGDXBaQ';
 
 // ACTION ITEM: Insert the Mapbox key for your landing page map, refer blank for information on locating the map key. Also change the set view for your region of the world
-var map = new mapboxgl.Map({
+var map                  = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/streets-v10',
 		center: [13.38,52.51],
@@ -45,84 +45,93 @@ map.on('style.load', function () {
          "type": "symbol",
          "source": "points",
          "layout": {
-             "icon-image": "monument-15",
+             "icon-image": "{marker-symbol}-15",
              "text-field": "{title}",
              "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
              "text-offset": [0, 0.6],
              "text-anchor": "top"
          }
      });
+
+   // Add zoom and rotation controls to the map.
+   var nav               = new mapboxgl.NavigationControl();
+   map.addControl(nav, 'top-left');
 });
 
+// See https://www.mapbox.com/mapbox-gl-js/example/popup-on-click/
+// When a click event occurs near a place, open a popup at the location of
+// the feature, with description HTML from its properties.
+map.on('click', function (e) {
+    var features         = map.queryRenderedFeatures(e.point, { layers: ['points'] });
 
-// var layer = L.mapbox.featureLayer().addTo(map)
-//
-// // Add custom popup html to each marker
-// layer.on('layeradd', function(e) {
-// 	var marker = e.layer;
-// 	var feature = marker.feature;
-// 	var images = feature.properties.images;
-// 	var slideshowContent = '';
-//
-// 	if (typeof images !== "undefined") {
-// 		for (var i = 0; i < images.length; i++) {
-// 			var img = images[i];
-// 			slideshowContent += '<div class="image' + (i === 0 ? ' active' : '') +
-// 				'">' +
-// 				formatMedia(img) +
-// 				'<div class="caption">' + img.description + '</div>' +
-// 				'</div>';
-// 		}
-// 	}
-//
-// 	// Adds corresponding HTML element to format the media formats appropriately.
-// 	// The list of acceptable formats may be expanded as necessary.
-// 	function formatMedia(img) {
-// 		if (img.format === "YouTube") {
-// 			return "<iframe width='175' src='" + img.url +
-// 				"' frameborder='0' allowfullscreen=''></iframe>";
-// 		}
-// 		if (img.format === "Image") {
-// 			return "<img src='" + img.url + "'/>";
-// 		}
-// 	}
-//
-// 	// Create custom popup content
-// 	var popupContent = '<div id="' + feature.properties.id + '" class="popup">' +
-// 		'<h2>' + feature.properties.title + '</h2>' +
-// 		'<div class="slideshow">' +
-// 		slideshowContent +
-// 		'</div>' +
-// 		'<div class="cycle">' +
-// 		'<a href="#" class="prev">&laquo; Previous</a>' +
-// 		'<a href="#" class="next">Next &raquo;</a>' +
-// 		'</div>';
-// 	'</div>';
-//
-// 	// http://leafletjs.com/reference.html#popup
-// 	marker.bindPopup(popupContent, {
-// 		closeButton: false,
-// 		maxWidth: 200,
-// 		autoPan: true,
-// 		keepInView: true
-// 	});
-// });
-//
+    if (!features.length) {
+        return;
+    }
+
+    var feature          = features[0];
+    var images           = JSON.parse(feature.properties.images);
+    var slideshowContent = '';
+
+    	if (typeof images !== "undefined") {
+    		for (var i         = 0; i < images.length; i++) {
+    			var img           = images[i];
+
+    			slideshowContent += '<div class="image' + (i === 0 ? ' active' : '') +
+    				'">' +
+    				formatMedia(img) +
+    				'<div class="caption">' + img.description + '</div>' +
+    				'</div>';
+    		}
+    	}
+
+    	// Adds corresponding HTML element to format the media formats appropriately.
+    	// The list of acceptable formats may be expanded as necessary.
+    	function formatMedia(img) {
+    		if (img.format === "YouTube") {
+    			return "<iframe width='175' src='" + img.url +
+    				"' frameborder='0' allowfullscreen=''></iframe>";
+    		}
+    		if (img.format === "Image") {
+    			return "<img src='" + img.url + "'/>";
+    		}
+    	}
+
+    	// Create custom popup content
+    	var popupContent    = '<div id="' + feature.properties.id + '" class="popup">' +
+    		'<h2>' + feature.properties.title + '</h2>' +
+    		'<div class="slideshow">' +
+    		slideshowContent +
+    		'</div>' +
+    		'<div class="cycle">' +
+    		'<a href="#" class="prev">&laquo; Previous</a>' +
+    		'<a href="#" class="next">Next &raquo;</a>' +
+    		'</div>';
+    	'</div>';
+
+
+    // Populate the popup and set its coordinates
+    // based on the feature found.
+    var popup            = new mapboxgl.Popup()
+        .setLngLat(feature.geometry.coordinates)
+        .setHTML(popupContent)
+        .addTo(map);
+});
+
 // This example uses jQuery to make selecting items in the slideshow easier.
 // Download it from http://jquery.com
 $('#map').on('click', '.popup .cycle a', function() {
-	var $slideshow = $('.slideshow'),
+	var $slideshow          = $('.slideshow'),
 		$newSlide;
 
 	if ($(this).hasClass('prev')) {
-		$newSlide = $slideshow.find('.active').prev();
+		$newSlide              = $slideshow.find('.active').prev();
 		if ($newSlide.index() < 0) {
-			$newSlide = $('.image').last();
+			$newSlide             = $('.image').last();
 		}
 	} else {
-		$newSlide = $slideshow.find('.active').next();
+		$newSlide              = $slideshow.find('.active').next();
 		if ($newSlide.index() < 0) {
-			$newSlide = $('.image').first();
+			$newSlide             = $('.image').first();
 		}
 	}
 
@@ -136,11 +145,11 @@ $('#map').on('click', '.popup .cycle a', function() {
 $(function() {
 
 	// list views from Cloudant that we want to offer as layers
-	var cloudantViews = [];
+	var cloudantViews       = [];
 // ACTION ITEM: Replace cloudant database URL with URL for your database
 	$.getJSON('https://vulibrarygis.cloudant.com/map-berlin/_design/tour/',
 		function(result) {
-			var viewsList = result.views;
+			var viewsList         = result.views;
 			for (var v in viewsList) {
 				cloudantViews.push(v);
 			}
@@ -154,10 +163,10 @@ $(function() {
 
 	// when the user selects from the dropdown, change the layer
 	$('#layers-dropdown').change(function() {
-		var selection_label = $('#layers-dropdown option:selected').text();
-		var selection_value = $('#layers-dropdown').val();
+		var selection_label    = $('#layers-dropdown option:selected').text();
+		var selection_value    = $('#layers-dropdown').val();
 		if (selection_value !== 'default') {
-			var thisCloudantView = selection_value;
+			var thisCloudantView  = selection_value;
 			getLayer(processLayer, thisCloudantView);
 		}
 		$("#searchText").val(""); // empty the searchbox when choosing a layer
@@ -166,24 +175,24 @@ $(function() {
 
 $("#search").submit(function(event) {
 	event.preventDefault();
-	var searchText = $("#searchText").val();
+	var searchText          = $("#searchText").val();
 	$('#layers-dropdown').val("default"); // reset the dropdown to default value
 	searchPoints(getPoints, searchText);
 });
 
 function getLayer(callback, cloudantView) {
 // ACTION ITEM: Replace cloudant database URL with URL for your database
-	var cloudantURLbase =
+	var cloudantURLbase     =
 		"//vulibrarygis.cloudant.com/map-berlin/_design/tour/_view/";
 	var cloudantURLcallback = "?callback=?";
-	var thisCloudantURL = cloudantURLbase + cloudantView + cloudantURLcallback;
+	var thisCloudantURL     = cloudantURLbase + cloudantView + cloudantURLcallback;
 	$.getJSON(thisCloudantURL, function(result) {
-		var points = result.rows;
-		var geoJSON = [];
+		var points             = result.rows;
+		var geoJSON            = [];
 		for (var i in points) {
-			geoJSON["locations"] = geoJSON.push(points[i].value);
+			geoJSON["locations"]  = geoJSON.push(points[i].value);
 		}
-		var featureCollection =
+		var featureCollection  =
 			{
 				 "type": "FeatureCollection",
 				 "features": geoJSON
@@ -195,13 +204,13 @@ function getLayer(callback, cloudantView) {
 // See http://stackoverflow.com/questions/19916894/wait-for-multiple-getjson-calls-to-finish
 function searchPoints(callback, cloudantSearch) {
 // ACTION ITEM: Replace cloudant database URL with URL for your database
-	var cloudantURLbase =
+	var cloudantURLbase     =
 		"//vulibrarygis.cloudant.com/map-berlin/_design/tour/_search/ids?q=";
 	var cloudantURLcallback = "&callback=?";
-	var thisCloudantURL = cloudantURLbase + cloudantSearch + cloudantURLcallback;
+	var thisCloudantURL     = cloudantURLbase + cloudantSearch + cloudantURLcallback;
 	$.getJSON(thisCloudantURL, function(result) {
-		var ids = [];
-		var rows = result.rows;
+		var ids                = [];
+		var rows               = result.rows;
 		if (rows.length > 0) {
 		callback(rows);
 		} else {
@@ -211,7 +220,7 @@ function searchPoints(callback, cloudantSearch) {
 }
 
 function getPoints(cloudantIDs) {
-	var geoJSON = [];
+	var geoJSON             = [];
 	if (typeof cloudantIDs !== "undefined") {
 		for (var i in cloudantIDs) {
 			geoJSON.push(getPoint(cloudantIDs[i].id));
@@ -220,8 +229,8 @@ function getPoints(cloudantIDs) {
 
 	function getPoint(id) {
 // ACTION ITEM: Replace cloudant database URL with URL for your database
-		var cloudantURLbase = "https://vulibrarygis.cloudant.com/map-berlin/";
-		var url = cloudantURLbase + id;
+		var cloudantURLbase    = "https://vulibrarygis.cloudant.com/map-berlin/";
+		var url                = cloudantURLbase + id;
 		return $.getJSON(url); // this returns a "promise"
 	}
 
@@ -229,7 +238,7 @@ function getPoints(cloudantIDs) {
 		// This callback will be called with multiple arguments,
 		// one for each AJAX call
 		// Each argument is an array with the following structure: [data, statusText, jqXHR]
-		var geoJSON = [];
+		var geoJSON            = [];
 		// If a single object comes back, it will be as an object not an array of objects.
 		if (Array.isArray(arguments[0])) {
 			for (var i in arguments) {
@@ -255,11 +264,11 @@ function getPoints(cloudantIDs) {
 
 function processLayer(result) {
 	// Add features to the map
-	var selection_label = $('#layers-dropdown option:selected').text();
+	var selection_label     = $('#layers-dropdown option:selected').text();
 // ACTION ITEM: The selection label must match your view in Cloudant
 	if (selection_label == "1908") {
 // ACTION ITEM: Replace mapbox id below with the mapbox id that corresponds to your georeferenced map for the view above
-		new_id = 'vulibrarygis.l74iic1a'
+		new_id                 = 'vulibrarygis.l74iic1a'
 	}
 // ACTION ITEM: If you would like to incorporate multiple views into your mapping application, remove the double slashes in front of each trio of lines beginning with else if and ending with the end curly brace.
 // ACTION ITEM: Each trio of lines from else if to the end curly brace is equivalent to one Cloudant view and map.
@@ -278,7 +287,7 @@ function processLayer(result) {
 	// }
 // ACTION ITEM: Replace this mapbox id with the mapbox id for your landing page map.
 	else {
-		new_id = 'vulibrarygis.of23e6p0'
+		new_id                 = 'vulibrarygis.of23e6p0'
 	};
 
 	map.getSource('points').setData(result);
