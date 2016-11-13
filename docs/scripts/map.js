@@ -3,10 +3,16 @@
 // ACTION ITEM: replace mapbox access token below with your own mapbox access token. Refer to blank for information on accessing your token.
 mapboxgl.accessToken     = 'pk.eyJ1IjoibWlza290dGUiLCJhIjoiOGp0VEpwUSJ9.sDOYAReEdCQfxFZuGDXBaQ';
 
+// ACTION ITEM: Replace cloudant database URL, design and views with URL and views for your database
+var cloudantURLBase    = "https://vulibrarygis.cloudant.com/map-berlin/";
+var cloudantURLDesign = cloudantURLBase + "_design/tour/";
+
 // ACTION ITEM: Insert the Mapbox key for your landing page map, refer blank for information on locating the map key. Also change the set view for your region of the world
+var initialStyle = 'mapbox://styles/mapbox/streets-v10';
+
 var map                  = new mapboxgl.Map({
     container: 'map',
-    style: 'mapbox://styles/mapbox/streets-v10',
+    style: initialStyle,
 		center: [13.38,52.51],
 		zoom: 8
 });
@@ -146,8 +152,7 @@ $(function() {
 
 	// list views from Cloudant that we want to offer as layers
 	var cloudantViews       = [];
-// ACTION ITEM: Replace cloudant database URL with URL for your database
-	$.getJSON('https://vulibrarygis.cloudant.com/map-berlin/_design/tour/',
+	$.getJSON(cloudantURLDesign,
 		function(result) {
 			var viewsList         = result.views;
 			for (var v in viewsList) {
@@ -181,11 +186,7 @@ $("#search").submit(function(event) {
 });
 
 function getLayer(callback, cloudantView) {
-// ACTION ITEM: Replace cloudant database URL with URL for your database
-	var cloudantURLbase     =
-		"//vulibrarygis.cloudant.com/map-berlin/_design/tour/_view/";
-	var cloudantURLcallback = "?callback=?";
-	var thisCloudantURL     = cloudantURLbase + cloudantView + cloudantURLcallback;
+	var thisCloudantURL     = cloudantURLDesign + "_view/" + cloudantView + "?callback=?";
 	$.getJSON(thisCloudantURL, function(result) {
 		var points             = result.rows;
 		var geoJSON            = [];
@@ -203,9 +204,7 @@ function getLayer(callback, cloudantView) {
 
 // See http://stackoverflow.com/questions/19916894/wait-for-multiple-getjson-calls-to-finish
 function searchPoints(callback, cloudantSearch) {
-// ACTION ITEM: Replace cloudant database URL with URL for your database
-	var cloudantURLbase     =
-		"//vulibrarygis.cloudant.com/map-berlin/_design/tour/_search/ids?q=";
+	var cloudantURLbase     = cloudantURLDesign + "_search/ids?q=";
 	var cloudantURLcallback = "&callback=?";
 	var thisCloudantURL     = cloudantURLbase + cloudantSearch + cloudantURLcallback;
 	$.getJSON(thisCloudantURL, function(result) {
@@ -228,9 +227,7 @@ function getPoints(cloudantIDs) {
 	}
 
 	function getPoint(id) {
-// ACTION ITEM: Replace cloudant database URL with URL for your database
-		var cloudantURLbase    = "https://vulibrarygis.cloudant.com/map-berlin/";
-		var url                = cloudantURLbase + id;
+		var url                = cloudantURLBase + id;
 		return $.getJSON(url); // this returns a "promise"
 	}
 
