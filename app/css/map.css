@@ -15,7 +15,7 @@ body { margin-top: 50px; }
 /* Adapted from https://www.mapbox.com/mapbox.js/example/v1.0.0/markers-with-image-slideshow/ */
 
 .mapboxgl-popup-content {
-  width: 20%;
+  width: 200px;
 }
 
 .popup {

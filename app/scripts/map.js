@@ -1,20 +1,12 @@
 // code adapted from https://www.mapbox.com/mapbox.js/example/v1.0.0/markers-with-image-slideshow/
 
-// ACTION ITEM: replace mapbox access token below with your own mapbox access token. Refer to blank for information on accessing your token.
-mapboxgl.accessToken     = 'pk.eyJ1IjoibWlza290dGUiLCJhIjoiOGp0VEpwUSJ9.sDOYAReEdCQfxFZuGDXBaQ';
-
-// ACTION ITEM: Replace cloudant database URL, design and views with URL and views for your database
-var cloudantURLBase    = "https://vulibrarygis.cloudant.com/map-berlin/";
-var cloudantURLDesign = cloudantURLBase + "_design/tour/";
-
-// ACTION ITEM: Insert the Mapbox key for your landing page map, refer blank for information on locating the map key. Also change the set view for your region of the world
-var initialStyle = 'mapbox://styles/mapbox/streets-v10';
+mapboxgl.accessToken     = config.accessToken;
 
 var map                  = new mapboxgl.Map({
     container: 'map',
-    style: initialStyle,
-		center: [13.38,52.51],
-		zoom: 8
+    style: config.initialStyle,
+		center: config.initialCenter,
+		zoom: config.initialZoom
 });
 
 map.on('style.load', function () {
@@ -22,27 +14,7 @@ map.on('style.load', function () {
 			 "type": "geojson",
 			 "data": {
 					 "type": "FeatureCollection",
-					 "features": [{
-							 "type": "Feature",
-							 "geometry": {
-									 "type": "Point",
-									 "coordinates": [-77.03238901390978, 38.913188059745586]
-							 },
-							 "properties": {
-									 "title": "Mapbox DC",
-									 "icon": "monument"
-							 }
-					 }, {
-							 "type": "Feature",
-							 "geometry": {
-									 "type": "Point",
-									 "coordinates": [-122.414, 37.776]
-							 },
-							 "properties": {
-									 "title": "Mapbox SF",
-									 "icon": "harbor"
-							 }
-					 }]
+					 "features": []
 			 }
 	 });
 
@@ -53,6 +25,7 @@ map.on('style.load', function () {
          "layout": {
              "icon-image": "{marker-symbol}-15",
              "text-field": "{title}",
+             "text-size": 10,
              "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
              "text-offset": [0, 0.6],
              "text-anchor": "top"
@@ -62,6 +35,14 @@ map.on('style.load', function () {
    // Add zoom and rotation controls to the map.
    var nav               = new mapboxgl.NavigationControl();
    map.addControl(nav, 'top-left');
+
+   // See https://www.mapbox.com/mapbox-gl-js/example/popup-on-click/
+   // Use the same approach as above to indicate that the symbols are clickable
+   // by changing the cursor style to 'pointer'.
+   map.on('mousemove', function (e) {
+       var features = map.queryRenderedFeatures(e.point, { layers: ['points'] });
+       map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
+   });
 });
 
 // See https://www.mapbox.com/mapbox-gl-js/example/popup-on-click/
@@ -104,7 +85,7 @@ map.on('click', function (e) {
 
     	// Create custom popup content
     	var popupContent    = '<div id="' + feature.properties.id + '" class="popup">' +
-    		'<h2>' + feature.properties.title + '</h2>' +
+    		'<h4>' + feature.properties.title + '</h4>' +
     		'<div class="slideshow">' +
     		slideshowContent +
     		'</div>' +
@@ -113,7 +94,6 @@ map.on('click', function (e) {
     		'<a href="#" class="next">Next &raquo;</a>' +
     		'</div>';
     	'</div>';
-
 
     // Populate the popup and set its coordinates
     // based on the feature found.
@@ -152,7 +132,7 @@ $(function() {
 
 	// list views from Cloudant that we want to offer as layers
 	var cloudantViews       = [];
-	$.getJSON(cloudantURLDesign,
+	$.getJSON(config.cloudantURLBase+ config.cloudantURLDesign,
 		function(result) {
 			var viewsList         = result.views;
 			for (var v in viewsList) {
@@ -186,7 +166,7 @@ $("#search").submit(function(event) {
 });
 
 function getLayer(callback, cloudantView) {
-	var thisCloudantURL     = cloudantURLDesign + "_view/" + cloudantView + "?callback=?";
+	var thisCloudantURL     = config.cloudantURLBase+ config.cloudantURLDesign + "_view/" + cloudantView + "?callback=?";
 	$.getJSON(thisCloudantURL, function(result) {
 		var points             = result.rows;
 		var geoJSON            = [];
@@ -204,9 +184,9 @@ function getLayer(callback, cloudantView) {
 
 // See http://stackoverflow.com/questions/19916894/wait-for-multiple-getjson-calls-to-finish
 function searchPoints(callback, cloudantSearch) {
-	var cloudantURLbase     = cloudantURLDesign + "_search/ids?q=";
+	var cloudantURLBase     = config.cloudantURLBase + config.cloudantURLDesign + "_search/ids?q=";
 	var cloudantURLcallback = "&callback=?";
-	var thisCloudantURL     = cloudantURLbase + cloudantSearch + cloudantURLcallback;
+	var thisCloudantURL     = cloudantURLBase + cloudantSearch + cloudantURLcallback;
 	$.getJSON(thisCloudantURL, function(result) {
 		var ids                = [];
 		var rows               = result.rows;
@@ -227,7 +207,7 @@ function getPoints(cloudantIDs) {
 	}
 
 	function getPoint(id) {
-		var url                = cloudantURLBase + id;
+		var url                = config.cloudantURLBase + id;
 		return $.getJSON(url); // this returns a "promise"
 	}
 
