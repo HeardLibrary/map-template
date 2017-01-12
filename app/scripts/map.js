@@ -18,6 +18,20 @@ map.on('style.load', function() {
     }
   });
 
+  map.addSource('Somerville', {
+    type: 'raster',
+    url: layers.somerville
+  });
+
+  map.addLayer({
+    'id': 'Somerville',
+    'type': 'raster',
+    'source': 'Somerville',
+    'layout': {
+      'visibility': 'none'
+    }
+  });
+
   map.addLayer({
     "id": "points",
     "type": "symbol",
@@ -35,7 +49,6 @@ map.on('style.load', function() {
   // Add zoom and rotation controls to the map.
   var nav = new mapboxgl.NavigationControl();
   map.addControl(nav, 'top-left');
-
   // See https://www.mapbox.com/mapbox-gl-js/example/popup-on-click/
   // Use the same approach as above to indicate that the symbols are clickable
   // by changing the cursor style to 'pointer'.
@@ -247,9 +260,10 @@ function getPoints(cloudantIDs) {
 function processLayer(result) {
   // Add features to the map
   // TODO: Add functionality for switching between basemaps
+  // TODO: Iterate through all maps, turning all layers visiblility: none
   var selection_label = $('#layers-dropdown option:selected').text();
   if (layers[selection_label] != "undefined") {
-    new_id = layers[selection_label]
+    map.setLayoutProperty(selection_label, 'visibility', 'visible');
   } else new_id = config.initialStyle;
   map.getSource('points').setData(result);
 }
