@@ -17,9 +17,5 @@ var config = {
 var layers = {
   // ACTION ITEM: If you would like to incorporate multiple views into your mapping application, remove the double slashes.
   // ACTION ITEM: Remember to replace your selection  with the corresponding map.
-  somerville: "mapbox://ramona2020.4tm1idpm",
-  "1920": "mapbox://mapbox.mapbox-terrain-v2",
-  "1936": "vulibrarygis.l369lc2l",
-  "1947": "vulibrarygis.l36anlai",
-  "1970": "vulibrarygis.l36db1a5"
+  Somerville: "mapbox://ramona2020.4tm1idpm"
 }

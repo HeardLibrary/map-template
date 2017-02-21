@@ -18,20 +18,6 @@ map.on('style.load', function() {
     }
   });
 
-  map.addSource('Somerville', {
-    type: 'raster',
-    url: layers.somerville
-  });
-
-  map.addLayer({
-    'id': 'Somerville',
-    'type': 'raster',
-    'source': 'Somerville',
-    'layout': {
-      'visibility': 'none'
-    }
-  });
-
   map.addLayer({
     "id": "points",
     "type": "symbol",
@@ -46,6 +32,11 @@ map.on('style.load', function() {
     }
   });
 
+  //Iterate through layers
+  //addMapboxLayer(map)
+  for (var mapID in layers) {
+    addMapboxLayer(mapID);
+  };
   // Add zoom and rotation controls to the map.
   var nav = new mapboxgl.NavigationControl();
   map.addControl(nav, 'top-left');
@@ -59,6 +50,26 @@ map.on('style.load', function() {
     map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
   });
 });
+
+//Add mapbox layers
+function addMapboxLayer(mapID){
+
+  var mapName = mapID.toString();
+
+  map.addSource("Sommerville", {
+    "type": "raster",
+    "url": "mapbox://ramona2020.4tm1idpm"
+  });
+
+  map.addLayer({
+    'id': 'Somerville',
+    'type': 'raster',
+    'source': 'Somerville',
+    'layout': {
+      'visibility': 'none'
+    }
+  });
+};
 
 // See https://www.mapbox.com/mapbox-gl-js/example/popup-on-click/
 // When a click event occurs near a place, open a popup at the location of
