@@ -12,6 +12,76 @@ var map = new mapboxgl.Map({
     center: [-71.06, 42.36]
 });
 
+map.on('load', function () {
+    map.addSource('Somerville', {
+        type: 'raster',
+        url: 'mapbox://ramona2020.4tm1idpm'
+    });
+    map.addLayer({
+        'id': 'Somerville',
+        'type': 'raster',
+        'source': 'Somerville',
+        'layout': {
+            'visibility': 'visible'
+        }
+      //  'paint': {
+      //      'circle-radius': 8,
+      //      'circle-color': 'rgba(55,148,179,1)'
+      //  },
+      //  'source-layer': 'museum-cusco'
+    });
+
+    map.addSource('Boston', {
+        type: 'raster',
+        url: 'ramona2020.66n3zq9m'
+    });
+    map.addLayer({
+        'id': 'Boston',
+        'type': 'raster',
+        'source': 'Boston',
+        //'source-layer': 'contour',
+        'layout': {
+            'visibility': 'visible',
+          //  'line-join': 'round',
+          //  'line-cap': 'round'
+        }
+      //  'paint': {
+      //      'line-color': '#877b59',
+      //      'line-width': 1
+    //    }
+    });
+});
+
+var toggleableLayerIds = [ 'Boston', 'Somerville' ];
+
+for (var i = 0; i < toggleableLayerIds.length; i++) {
+    var id = toggleableLayerIds[i];
+
+    var link = document.createElement('a');
+    link.href = '#';
+    link.className = 'active';
+    link.textContent = id;
+
+    link.onclick = function (e) {
+        var clickedLayer = this.textContent;
+        e.preventDefault();
+        e.stopPropagation();
+
+        var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+        if (visibility === 'visible') {
+            map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+            this.className = '';
+        } else {
+            this.className = 'active';
+            map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+        }
+    };
+
+    var layers = document.getElementById('menu');
+    layers.appendChild(link);
+}
+
 // ACTION ITEM: Insert the Mapbox key for your landing page map, refer blank for information on locating the map key. Also change the set view for your region of the world
 // var map = L.mapbox.map('map', "vulibrarygis.of23e6p0").setView([52.51, 13.38],
 //	12);
