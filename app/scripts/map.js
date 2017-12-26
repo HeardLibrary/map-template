@@ -18,18 +18,25 @@ map.on('style.load', function() {
     }
   });
 
-  map.addSource('Somerville', {
-    type: 'raster',
-    url: layers.somerville
-  });
+  Object.keys(layers).forEach(function(key) {
 
-  map.addLayer({
-    'id': 'Somerville',
-    'type': 'raster',
-    'source': 'Somerville',
-    'layout': {
-      'visibility': 'none'
-    }
+    var regexname = /\D*(\d*)/;
+    var name = regexname.exec(key)[1];
+
+    map.addSource(name, {
+      type: 'raster',
+      url: layers[key]
+    });
+
+    map.addLayer({
+      'id': name,
+      'type': 'raster',
+      'source': name,
+      'layout': {
+        'visibility': 'none'
+      }
+    });
+
   });
 
   map.addLayer({
@@ -48,7 +55,8 @@ map.on('style.load', function() {
 
   // Add zoom and rotation controls to the map.
   var nav = new mapboxgl.NavigationControl();
-  map.addControl(nav, 'top-left');
+  map.addControl(nav,
+    'top-left');
   // See https://www.mapbox.com/mapbox-gl-js/example/popup-on-click/
   // Use the same approach as above to indicate that the symbols are clickable
   // by changing the cursor style to 'pointer'.
@@ -56,7 +64,8 @@ map.on('style.load', function() {
     var features = map.queryRenderedFeatures(e.point, {
       layers: ['points']
     });
-    map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
+    map.getCanvas().style.cursor = (features.length) ? 'pointer' :
+      '';
   });
 });
 
@@ -80,7 +89,8 @@ map.on('click', function(e) {
     for (var i = 0; i < images.length; i++) {
       var img = images[i];
 
-      slideshowContent += '<div class="image' + (i === 0 ? ' active' : '') +
+      slideshowContent += '<div class="image' + (i === 0 ? ' active' :
+          '') +
         '">' +
         formatMedia(img) +
         '<div class="caption">' + img.description + '</div>' +
@@ -159,7 +169,8 @@ $(function() {
 
       // put each view into the dropdown menu
       $.each(cloudantViews, function(i, viewname) {
-        $('#layers-dropdown').append('<option value="' + viewname +
+        $('#layers-dropdown').append('<option value="' +
+          viewname +
           '">' +
           viewname + '</option>');
       });
@@ -206,7 +217,8 @@ function searchPoints(callback, cloudantSearch) {
   var cloudantURLBase = config.cloudantURLBase + config.cloudantURLDesign +
     "_search/ids?q=";
   var cloudantURLcallback = "&callback=?";
-  var thisCloudantURL = cloudantURLBase + cloudantSearch + cloudantURLcallback;
+  var thisCloudantURL = cloudantURLBase + cloudantSearch +
+    cloudantURLcallback;
   $.getJSON(thisCloudantURL, function(result) {
     var ids = [];
     var rows = result.rows;
@@ -259,10 +271,16 @@ function getPoints(cloudantIDs) {
 
 function processLayer(result) {
   // Add features to the map
-  // TODO: Add functionality for switching between basemaps
   // TODO: Iterate through all maps, turning all layers visiblility: none
+
   var selection_label = $('#layers-dropdown option:selected').text();
   if (layers[selection_label] != "undefined") {
+    var unselected = $('#layers-dropdown option:not(:selected)');
+    // TODO: remove hardcoded '5'
+    for (var i = 1; i < 5; i++) {
+      map.setLayoutProperty(unselected[i]['innerHTML'], 'visibility',
+        'none');
+    }
     map.setLayoutProperty(selection_label, 'visibility', 'visible');
   } else new_id = config.initialStyle;
   map.getSource('points').setData(result);
