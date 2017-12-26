@@ -17,7 +17,7 @@ map.on('style.load', function() {
       "features": []
     }
   });
-
+  
   Object.keys(layers).forEach(function(key) {
 
     var regexname = /\D*(\d*)/;
@@ -68,6 +68,7 @@ map.on('style.load', function() {
       '';
   });
 });
+
 
 // See https://www.mapbox.com/mapbox-gl-js/example/popup-on-click/
 // When a click event occurs near a place, open a popup at the location of
