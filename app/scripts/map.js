@@ -17,21 +17,18 @@ map.on('style.load', function() {
       "features": []
     }
   });
-  
+
   Object.keys(layers).forEach(function(key) {
 
-    var regexname = /\D*(\d*)/;
-    var name = regexname.exec(key)[1];
-
-    map.addSource(name, {
+    map.addSource(key, {
       type: 'raster',
       url: layers[key]
     });
 
     map.addLayer({
-      'id': name,
+      'id': key,
       'type': 'raster',
-      'source': name,
+      'source': key,
       'layout': {
         'visibility': 'none'
       }
@@ -275,7 +272,7 @@ function processLayer(result) {
   // TODO: Iterate through all maps, turning all layers visiblility: none
 
   var selection_label = $('#layers-dropdown option:selected').text();
-  if (layers[selection_label] != "undefined") {
+  if (layers[selection_label] !== undefined) {
     var unselected = $('#layers-dropdown option:not(:selected)');
     // TODO: remove hardcoded '5'
     for (var i = 1; i < 5; i++) {

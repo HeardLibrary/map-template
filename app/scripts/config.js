@@ -17,9 +17,9 @@ var config = {
 var layers = {
   // ACTION ITEM: If you would like to incorporate multiple views into your mapping application, remove the double slashes.
   // ACTION ITEM: Remember to replace your selection  with the corresponding map.
-  "berlin1908": "mapbox://vulibrarygis.Berlin_1908",
-  "berlin1920": "mapbox://vulibrarygis.Berlin1920",
-  "berlin1936": "mapbox://vulibrarygis.Berlin_1936",
-  "berlin1947": "mapbox://vulibrarygis.Berlin_1947",
-  "berlin1970": "mapbox://vulibrarygis.Berlin_1970"
+  "Berlin 1908": "mapbox://vulibrarygis.Berlin_1908",
+  "Berlin 1920": "mapbox://vulibrarygis.Berlin1920",
+  "Berlin 1936": "mapbox://vulibrarygis.Berlin_1936",
+  "Berlin 1947": "mapbox://vulibrarygis.Berlin_1947",
+  "Berlin 1970": "mapbox://vulibrarygis.Berlin_1970"
 }
