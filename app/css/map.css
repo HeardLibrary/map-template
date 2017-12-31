@@ -63,3 +63,11 @@ body { margin-top: 50px; }
   top: 10px;
   z-index: 1;
 }
+
+#point-options {
+  float: right;
+  position: relative;
+  right: -87px;
+  top: 40px;
+  z-index: 2;
+}

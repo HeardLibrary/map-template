@@ -86,7 +86,6 @@ map.on('click', function(e) {
   if (typeof images !== "undefined") {
     for (var i = 0; i < images.length; i++) {
       var img = images[i];
-
       slideshowContent += '<div class="image' + (i === 0 ? ' active' :
           '') +
         '">' +
@@ -132,6 +131,7 @@ map.on('click', function(e) {
 // This example uses jQuery to make selecting items in the slideshow easier.
 // Download it from http://jquery.com
 $('#map').on('click', '.popup .cycle a', function() {
+
   var $slideshow = $('.slideshow'),
     $newSlide;
 
@@ -146,17 +146,25 @@ $('#map').on('click', '.popup .cycle a', function() {
       $newSlide = $('.image').first();
     }
   }
-
   $slideshow.find('.active').removeClass('active').hide();
   $newSlide.addClass('active').show();
   return false;
 });
 
+$(function() {
+  $.each(layers, function(key, value) {
+    $('#layers-dropdown').append('<option value="' +
+      key +
+      '">' +
+      key + '</option>');
+  });
+})
+
 // Get the points from Cloudant using JSONP
 // http://stackoverflow.com/questions/14220321/how-to-return-the-response-from-an-ajax-call
 $(function() {
 
-  // list views from Cloudant that we want to offer as layers
+  // list views from Cloudant that we want to offer as themes
   var cloudantViews = [];
   $.getJSON(config.cloudantURLBase + config.cloudantURLDesign,
     function(result) {
@@ -166,11 +174,11 @@ $(function() {
       }
 
       // put each view into the dropdown menu
-      $.each(cloudantViews, function(i, viewname) {
-        $('#layers-dropdown').append('<option value="' +
-          viewname +
+      $.each(cloudantViews, function(key, value) {
+        $('#points-dropdown').append('<option value="' +
+          value +
           '">' +
-          viewname + '</option>');
+          value + '</option>');
       });
     });
 
@@ -185,6 +193,15 @@ $(function() {
     $("#searchText").val(""); // empty the searchbox when choosing a layer
   });
 });
+
+$('#points-dropdown').change(function() {
+  var pointsText = $('#points-dropdown option:selected').text();
+  getLayer(showLayer, pointsText);
+});
+
+function showLayer(featureCollection) {
+  map.getSource('points').setData(featureCollection);
+};
 
 $("#search").submit(function(event) {
   event.preventDefault();
@@ -241,47 +258,44 @@ function getPoints(cloudantIDs) {
     return $.getJSON(url); // this returns a "promise"
   }
 
+  // This callback will be called with multiple arguments,
+  // one for each AJAX call
+  // Each argument is an array with the following structure: [data, statusText, jqXHR]
   $.when.apply($, geoJSON).done(function() {
-    // This callback will be called with multiple arguments,
-    // one for each AJAX call
-    // Each argument is an array with the following structure: [data, statusText, jqXHR]
     var geoJSON = [];
     // If a single object comes back, it will be as an object not an array of objects.
     if (Array.isArray(arguments[0])) {
       for (var i in arguments) {
         geoJSON.push(arguments[i][0]);
       }
-      var featureCollection = {
-        "type": "FeatureCollection",
-        "features": geoJSON
-      };
-      processLayer(featureCollection);
-    } else if (typeof arguments[0] !== 'undefined') {
+    } else {
       geoJSON.push(arguments[0]);
       var featureCollection = {
         "type": "FeatureCollection",
         "features": geoJSON
       };
-      processLayer(featureCollection);
     }
+    var featureCollection = {
+      "type": "FeatureCollection",
+      "features": geoJSON
+    };
+    showLayer(featureCollection);
   });
 }
 
+// Add layers to the map
+// Iterate through all maps, turning all layers visiblility: none
+// Then make the selected map visible.
 function processLayer(result) {
-  // Add features to the map
-  // TODO: Iterate through all maps, turning all layers visiblility: none
-
   var selection_label = $('#layers-dropdown option:selected').text();
   if (layers[selection_label] !== undefined) {
     var unselected = $('#layers-dropdown option:not(:selected)');
-    // TODO: remove hardcoded '5'
-    for (var i = 1; i < 5; i++) {
+    for (var i = 1; i < unselected.length; i++) {
       map.setLayoutProperty(unselected[i]['innerHTML'], 'visibility',
         'none');
     }
     map.setLayoutProperty(selection_label, 'visibility', 'visible');
   } else new_id = config.initialStyle;
-  map.getSource('points').setData(result);
 }
 
 // Show and hide the alert box
