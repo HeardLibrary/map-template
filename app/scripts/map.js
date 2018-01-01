@@ -9,7 +9,7 @@ var map = new mapboxgl.Map({
   zoom: config.initialZoom
 });
 
-map.on('style.load', function() {
+map.on('load', function() {
   map.addSource("points", {
     "type": "geojson",
     "data": {
@@ -182,18 +182,14 @@ $(function() {
       });
     });
 
-  // when the user selects from the dropdown, change the layer
+  // when the user selects from the layer dropdown, change the layer
   $('#layers-dropdown').change(function() {
     var selection_label = $('#layers-dropdown option:selected').text();
-    var selection_value = $('#layers-dropdown').val();
-    if (selection_value !== 'default') {
-      var thisCloudantView = selection_value;
-      getLayer(processLayer, thisCloudantView);
-    }
-    $("#searchText").val(""); // empty the searchbox when choosing a layer
+    processLayer(selection_label);
   });
 });
 
+// when the user selects from the points dropdown, change the points
 $('#points-dropdown').change(function() {
   var pointsText = $('#points-dropdown option:selected').text();
   getLayer(showLayer, pointsText);
@@ -207,6 +203,7 @@ $("#search").submit(function(event) {
   event.preventDefault();
   var searchText = $("#searchText").val();
   $('#layers-dropdown').val("default"); // reset the dropdown to default value
+  $("#searchText").val(""); // empty the searchbox after choosing points
   searchPoints(getPoints, searchText);
 });
 
